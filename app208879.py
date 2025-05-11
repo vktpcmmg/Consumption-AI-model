@@ -63,6 +63,8 @@ def train_models(df):
 
 # Streamlit app layout
 st.title("🔌 Electricity Consumption Predictor")
+
+st.markdown("*_Note: This is based on around 90K smart meter data from FY 24–25._*")
 st.write("Enter details to predict monthly electricity usage (kWh).")
 
 st.markdown("*_Note: This is based on around 90K smart meter data from FY 24–25._*")
