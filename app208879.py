@@ -83,8 +83,35 @@ month = st.selectbox("Select Month", ['May', 'Jun', 'Jul', 'August', 'Sept', 'Oc
 zone_enc = label_encoders['Zone'].transform([zone])[0]
 category_enc = label_encoders['Category'].transform([category])[0]
 
-# Add a Predict button
 if st.button("🔍 Predict Consumption"):
     input_data = np.array([[connected_load, zone_enc, category_enc]])
-    prediction = models[month].predict(input_data)[0]
-    st.success(f"📊 Predicted electricity consumption for **{month}**: **{prediction:.2f} kWh**")
+
+    # Predict for selected month
+    selected_month_prediction = models[month].predict(input_data)[0]
+    st.success(f"📊 Predicted electricity consumption for **{month}**: **{selected_month_prediction:.2f} kWh**")
+
+    # Predict for all months
+    monthly_predictions = {m: models[m].predict(input_data)[0] for m in models.keys()}
+
+    # Find the closest matching row in the dataset
+    df_encoded = df.copy()
+    for col, le in label_encoders.items():
+        df_encoded[col] = le.transform(df_encoded[col])
+
+    # Find the best match based on Zone, Category, and closest Connected Load
+    match = df_encoded[
+        (df_encoded['Zone'] == zone_enc) &
+        (df_encoded['Category'] == category_enc)
+    ].iloc[(df_encoded['Connected Load'] - connected_load).abs().argsort()[:1]]
+
+    actual_values = match.iloc[0][list(models.keys())]
+
+    # Prepare DataFrame for comparison
+    compare_df = pd.DataFrame({
+        "Actual (kWh)": actual_values,
+        "Predicted (kWh)": pd.Series(monthly_predictions)
+    })
+
+    # Plot the comparison
+    st.subheader("📊 Actual vs Predicted Monthly Consumption")
+    st.line_chart(compare_df)
