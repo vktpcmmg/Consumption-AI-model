@@ -75,6 +75,48 @@ models, label_encoders = train_models(df)
 
 # User inputs
 connected_load = st.number_input("Connected Load (kW)", min_value=0.0, value=10.0)
+
+if connected_load <= 0:
+    st.error("⚠️ Please enter valid load as Zero load and Negative load don't exist.")
+else:
+    if st.button("🔍 Predict Consumption"):
+        input_data = np.array([[connected_load, zone_enc, category_enc]])
+
+        # Predict selected month
+        selected_month_prediction = models[month].predict(input_data)[0]
+        st.success(f"📊 Predicted electricity consumption for **{month}**: **{selected_month_prediction:.2f} kWh**")
+
+        # Predict all months
+        months = list(models.keys())
+        monthly_predictions = {m: models[m].predict(input_data)[0] for m in months}
+
+        # Encode to match
+        df_encoded = df.copy()
+        for col, le in label_encoders.items():
+            df_encoded[col] = le.transform(df_encoded[col])
+
+        matched_row = df_encoded[
+            (df_encoded['Zone'] == zone_enc) &
+            (df_encoded['Category'] == category_enc)
+        ]
+        if matched_row.empty:
+            st.warning("No matching row found for actual comparison. Showing only predicted values.")
+            actual_values = {m: None for m in months}
+        else:
+            matched_row = matched_row.iloc[(matched_row['Connected Load'] - connected_load).abs().argsort()[:1]]
+            actual_values = matched_row[months].iloc[0].to_dict()
+
+        compare_df = pd.DataFrame({
+            'Month': months,
+            'Predicted (kWh)': [monthly_predictions[m] for m in months],
+            'Actual (kWh)': [actual_values[m] if actual_values[m] is not None else np.nan for m in months]
+        })
+        compare_df.set_index('Month', inplace=True)
+
+        st.subheader("📊 Actual vs Predicted Monthly Consumption")
+        st.line_chart(compare_df)
+
+
 zone = st.selectbox("Select Zone", label_encoders['Zone'].classes_)
 category = st.selectbox("Select Category", label_encoders['Category'].classes_)
 month = st.selectbox("Select Month", ['May', 'Jun', 'Jul', 'August', 'Sept', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar', 'Apr'])
