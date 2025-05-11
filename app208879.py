@@ -84,44 +84,8 @@ month = st.selectbox("Select Month", ['May', 'Jun', 'Jul', 'August', 'Sept', 'Oc
 zone_enc = label_encoders['Zone'].transform([zone])[0]
 category_enc = label_encoders['Category'].transform([category])[0]
 
+# Add a Predict button
 if st.button("🔍 Predict Consumption"):
     input_data = np.array([[connected_load, zone_enc, category_enc]])
-
-    # Predict for selected month
-    selected_month_prediction = models[month].predict(input_data)[0]
-    st.success(f"📊 Predicted electricity consumption for **{month}**: **{selected_month_prediction:.2f} kWh**")
-
-    # Predict for all months
-    months = list(models.keys())
-    monthly_predictions = {m: models[m].predict(input_data)[0] for m in months}
-
-    # Encode columns to match with dataset
-    df_encoded = df.copy()
-    for col, le in label_encoders.items():
-        df_encoded[col] = le.transform(df_encoded[col])
-
-    # Find the best match row
-    matched_row = df_encoded[
-        (df_encoded['Zone'] == zone_enc) &
-        (df_encoded['Category'] == category_enc)
-    ]
-    if matched_row.empty:
-        st.warning("No matching row found for actual comparison. Showing only predicted values.")
-        actual_values = {m: None for m in months}
-    else:
-        # Get row with closest connected load
-        matched_row = matched_row.iloc[(matched_row['Connected Load'] - connected_load).abs().argsort()[:1]]
-        actual_values = matched_row[months].iloc[0].to_dict()
-
-    # Build DataFrame for comparison
-    compare_df = pd.DataFrame({
-        'Month': months,
-        'Predicted (kWh)': [monthly_predictions[m] for m in months],
-        'Actual (kWh)': [actual_values[m] if actual_values[m] is not None else np.nan for m in months]
-    })
-
-    compare_df.set_index('Month', inplace=True)
-
-    # Show chart
-    st.subheader("📊 Actual vs Predicted Monthly Consumption")
-    st.line_chart(compare_df)
+    prediction = models[month].predict(input_data)[0]
+    st.success(f"📊 Predicted electricity consumption for **{month}**: **{prediction:.2f} kWh**")
