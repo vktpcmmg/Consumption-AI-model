@@ -77,7 +77,11 @@ models, label_encoders = train_models(df)
 connected_load = st.number_input("Connected Load (kW)", min_value=0.0, value=10.0)
 
 zone = st.selectbox("Select Zone", label_encoders['Zone'].classes_)
+
+
 category = st.selectbox("Select Category", label_encoders['Category'].classes_)
+
+
 month = st.selectbox("Select Month", ['May', 'Jun', 'Jul', 'August', 'Sept', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar', 'Apr'])
 
 # Encode inputs
