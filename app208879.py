@@ -24,7 +24,7 @@ st.markdown(
 
 
 st.markdown(
-    "<h1 style='text-align: center; color: #003366;'>🔌 Electricity Consumption Predictor </h1>",
+    "<h1 style='text-align: center; color: #FFFFFF;'>🔌 Electricity Consumption Predictor </h1>",
     unsafe_allow_html=True
 )
 st.markdown(
@@ -62,7 +62,7 @@ def train_models(df):
     return models, label_encoders
 
 # Streamlit app layout
-st.title("🔌 Electricity Consumption Predictor")
+
 
 st.markdown("*_Note: This is based on around 90K smart meter data from FY 24–25._*")
 st.write("Enter details to predict monthly electricity usage (kWh).")
