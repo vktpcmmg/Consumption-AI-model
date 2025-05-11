@@ -84,8 +84,12 @@ month = st.selectbox("Select Month", ['May', 'Jun', 'Jul', 'August', 'Sept', 'Oc
 zone_enc = label_encoders['Zone'].transform([zone])[0]
 category_enc = label_encoders['Category'].transform([category])[0]
 
-# Add a Predict button
-if st.button("🔍 Predict Consumption"):
-    input_data = np.array([[connected_load, zone_enc, category_enc]])
-    prediction = models[month].predict(input_data)[0]
-    st.success(f"📊 Predicted electricity consumption for **{month}**: **{prediction:.2f} kWh**")
+# Add a Predict button with input validation
+if connected_load <= 0:
+    st.error("⚠️ Please enter a valid load. Zero or negative load does not exist.")
+else:
+    if st.button("🔍 Predict Consumption"):
+        input_data = np.array([[connected_load, zone_enc, category_enc]])
+        prediction = models[month].predict(input_data)[0]
+        st.success(f"📊 Predicted electricity consumption for **{month}**: **{prediction:.2f} kWh**")
+
