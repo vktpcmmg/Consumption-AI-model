@@ -24,7 +24,7 @@ st.markdown(
 
 
 st.markdown(
-    "<h1 style='text-align: center; color: #37FD12;'>🔌 Electricity Consumption Predictor </h1>",
+    "<h1 style='text-align: center; color: #0072C6;'>🔌 Electricity Consumption Predictor </h1>",
     unsafe_allow_html=True
 )
 st.markdown(
