@@ -91,27 +91,36 @@ if st.button("🔍 Predict Consumption"):
     st.success(f"📊 Predicted electricity consumption for **{month}**: **{selected_month_prediction:.2f} kWh**")
 
     # Predict for all months
-    monthly_predictions = {m: models[m].predict(input_data)[0] for m in models.keys()}
+    months = list(models.keys())
+    monthly_predictions = {m: models[m].predict(input_data)[0] for m in months}
 
-    # Find the closest matching row in the dataset
+    # Encode columns to match with dataset
     df_encoded = df.copy()
     for col, le in label_encoders.items():
         df_encoded[col] = le.transform(df_encoded[col])
 
-    # Find the best match based on Zone, Category, and closest Connected Load
-    match = df_encoded[
+    # Find the best match row
+    matched_row = df_encoded[
         (df_encoded['Zone'] == zone_enc) &
         (df_encoded['Category'] == category_enc)
-    ].iloc[(df_encoded['Connected Load'] - connected_load).abs().argsort()[:1]]
+    ]
+    if matched_row.empty:
+        st.warning("No matching row found for actual comparison. Showing only predicted values.")
+        actual_values = {m: None for m in months}
+    else:
+        # Get row with closest connected load
+        matched_row = matched_row.iloc[(matched_row['Connected Load'] - connected_load).abs().argsort()[:1]]
+        actual_values = matched_row[months].iloc[0].to_dict()
 
-    actual_values = match.iloc[0][list(models.keys())]
-
-    # Prepare DataFrame for comparison
+    # Build DataFrame for comparison
     compare_df = pd.DataFrame({
-        "Actual (kWh)": actual_values,
-        "Predicted (kWh)": pd.Series(monthly_predictions)
+        'Month': months,
+        'Predicted (kWh)': [monthly_predictions[m] for m in months],
+        'Actual (kWh)': [actual_values[m] if actual_values[m] is not None else np.nan for m in months]
     })
 
-    # Plot the comparison
+    compare_df.set_index('Month', inplace=True)
+
+    # Show chart
     st.subheader("📊 Actual vs Predicted Monthly Consumption")
     st.line_chart(compare_df)
