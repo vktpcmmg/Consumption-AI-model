@@ -65,6 +65,8 @@ def train_models(df):
 st.title("🔌 Electricity Consumption Predictor")
 st.write("Enter details to predict monthly electricity usage (kWh).")
 
+st.markdown("*_Note: This is based on around 90K smart meter data from FY 24–25._*")
+
 # Load data and train models
 df = load_data()
 models, label_encoders = train_models(df)
