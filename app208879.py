@@ -64,7 +64,7 @@ def train_models(df):
 # Streamlit app layout
 
 
-st.markdown("*_Note: This is based on around 90K smart meter data from FY 24–25._*")
+st.markdown("*_Note: This is based on around 100K smart meter data from FY 24–25._*")
 st.write("Enter details to predict monthly electricity usage (kWh/KVAh).")
 
 
@@ -74,7 +74,7 @@ df = load_data()
 models, label_encoders = train_models(df)
 
 # User inputs
-connected_load = st.number_input("Connected Load (KW/KVA)", min_value=0.0, value=10.0)
+connected_load = st.number_input("Connected Load (kW/KVA)", min_value=0.0, value=10.0)
 
 zone = st.selectbox("Select Zone", label_encoders['Zone'].classes_)
 
